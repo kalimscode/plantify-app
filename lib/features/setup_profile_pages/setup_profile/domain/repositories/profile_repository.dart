@@ -1,0 +1,9 @@
+import '../entities/profile_entity.dart';
+
+abstract class ProfileRepository {
+
+  Future<void> saveProfile(ProfileEntity profile);
+
+  Future<ProfileEntity?> getProfile(String email);
+
+}
