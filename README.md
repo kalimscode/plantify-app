@@ -38,7 +38,13 @@ Plantify is a modern, responsive Flutter app for plant enthusiasts. Built with *
 - **Dark/Light Theme Support**
 - **Clean & Scalable Code**: MVVM + Clean Architecture
 - **State Management**: Riverpod for reactive and predictable state handling
-
+- **🌿 Plant AI Chat**: AI-powered plant assistant using Google Gemini API
+    - Ask anything about plant care, diseases, watering, and pests
+    - Voice input support — speak your question directly
+    - Animated typing indicator and streaming responses
+    - Quick suggestion chips for instant plant queries
+    - WhatsApp-style voice message bubbles
+    - Meta-style animated FAB on home screen
 ---
 
 ## Tech Stack
@@ -48,7 +54,9 @@ Plantify is a modern, responsive Flutter app for plant enthusiasts. Built with *
 - Dio – HTTP requests & API calls
 - Shared Preferences – Local storage & caching
 - flutter_screenutil – Responsive layouts
-
+- Google Gemini API – AI plant assistant
+- speech_to_text – Voice input
+- permission_handler – Runtime permissions
 ---
 
 ## Architecture
@@ -67,16 +75,35 @@ Plantify is a modern, responsive Flutter app for plant enthusiasts. Built with *
 - Flutter 3.0+ installed
 - Android Studio / VS Code
 - Emulator or physical device
+- Google Gemini API key (free at [aistudio.google.com](https://aistudio.google.com))
 
 ### Installation
 
+Clone from either repository:
 ```bash
+# Option 1
+git clone https://github.com/kalimscode/plantify-app.git
+
+```
+# Option 2
 git clone https://github.com/KashifAhmad/the_plantinium_mobile.git
+
+```bash
 cd plantify
 flutter pub get
-flutter run
+```
 
-License
+Create a `.env` file in the root directory:
+```
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+```bash
+flutter run
+```
+
+---
+
+## License
 
 This project is licensed under the Apache License 2.0 – January 2004. See the LICENSE
  file for details.
