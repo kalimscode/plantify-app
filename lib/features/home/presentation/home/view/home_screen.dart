@@ -20,7 +20,11 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin{
+  late AnimationController _fabCtrl;
+  late Animation<double> _fabExpand;
+  late Animation<double> _fabFade;
+  bool _fabExpanded = false;
   int currentBanner = 0;
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<int> _bannerIndexNotifier = ValueNotifier(0);
@@ -31,6 +35,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _fabCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _fabExpand = CurvedAnimation(parent: _fabCtrl, curve: Curves.easeOut);
+    _fabFade   = CurvedAnimation(parent: _fabCtrl, curve: Curves.easeIn);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (!mounted) return;
+        setState(() => _fabExpanded = true);
+        _fabCtrl.forward();
+        Future.delayed(const Duration(milliseconds: 2500), () {
+          if (!mounted) return;
+          _fabCtrl.reverse().then((_) {
+            if (mounted) setState(() => _fabExpanded = false);
+          });
+        });
+      });
+    });
   }
 
 
@@ -49,6 +73,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void dispose() {
     _scrollController.dispose();
     _bannerIndexNotifier.dispose();
+    _fabCtrl.dispose();
     super.dispose();
   }
   @override
@@ -61,6 +86,58 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.dark500 : AppColors.white500,
+      floatingActionButton: GestureDetector(
+        onTap: () => Navigator.pushNamed(context, AppRouter.aiChat),
+        child: AnimatedBuilder(
+          animation: _fabCtrl,
+          builder: (_, __) {
+            return Container(
+              height: 52.h,
+              padding: EdgeInsets.symmetric(horizontal: 14.w),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF43A047), Color(0xFF1B5E20)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(30.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.main500.withOpacity(0.35),
+                    blurRadius: 12.r,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _PlantAiIcon(expanded: _fabExpanded),
+                  ClipRect(
+                    child: SizeTransition(
+                      sizeFactor: _fabExpand,
+                      axis: Axis.horizontal,
+                      axisAlignment: -1,
+                      child: FadeTransition(
+                        opacity: _fabFade,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 8.w, right: 2.w),
+                          child: Text(
+                            'Ask Plant AI',
+                            style: AppTypography.bodySmallBold.copyWith(
+                              color: AppColors.fontWhite
+                            )
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.only(top: 32.h, bottom: 24.h),
@@ -294,6 +371,85 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+class _PlantAiIcon extends StatefulWidget {
+  final bool expanded;
+  const _PlantAiIcon({required this.expanded});
+
+  @override
+  State<_PlantAiIcon> createState() => _PlantAiIconState();
+}
+
+class _PlantAiIconState extends State<_PlantAiIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _shimmer;
+  late Animation<double> _shimmerAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _shimmer = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+    _shimmerAnim = Tween<double>(begin: 0.6, end: 1.0).animate(
+      CurvedAnimation(parent: _shimmer, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _shimmer.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _shimmerAnim,
+      builder: (_, __) => Stack(
+        alignment: Alignment.center,
+        children: [
+          if (widget.expanded)
+            Container(
+              width: 34.w,
+              height: 34.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.15 * _shimmerAnim.value),
+              ),
+            ),
+          Container(
+            width: 28.w,
+            height: 28.h,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.4),
+            ),
+            child: Center(
+              child: Text('🌿', style: TextStyle(fontSize: 15.sp)),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Container(
+              width: 8.w,
+              height: 8.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(_shimmerAnim.value),
+                border: Border.all(color: AppColors.main500, width: 1),
+              ),
+              child: Center(
+                child: Icon(Icons.smart_toy_outlined, size: 5.w, color: AppColors.fontWhite),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

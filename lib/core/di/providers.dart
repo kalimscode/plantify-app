@@ -1,5 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/aichat/data/datasource/aichat_remote_datasource.dart';
+import '../../features/aichat/data/repository/aichat_repository_impl.dart';
+import '../../features/aichat/domain/entities/aichat_message.dart';
+import '../../features/aichat/domain/repository/aichat_repository.dart';
+import '../../features/aichat/presentation/viewmodel/aichat_viewmodel.dart';
 import '../../features/auth/presentation/create_account/presentation/viewmodel/create_account_state.dart';
 import '../../features/auth/presentation/create_account/presentation/viewmodel/create_account_viewmodel.dart';
 import '../../features/auth/presentation/login_account/domain/models/login_account_model.dart';
@@ -371,4 +376,25 @@ StateNotifierProvider<OrderViewModel, OrderState>((ref) {
   final repo = ref.watch(orderRepositoryProvider);
 
   return OrderViewModel(repo);
+});
+
+// AI CHAT
+
+final aiChatRemoteDataSourceProvider =
+Provider<AiChatRemoteDataSource>((ref) {
+  return AiChatRemoteDataSource(ref.read(apiClientProvider));
+});
+
+final aiChatRepositoryProvider =
+Provider<AiChatRepository>((ref) {
+  return AiChatRepositoryImpl(
+    ref.read(aiChatRemoteDataSourceProvider),
+  );
+});
+
+final aiChatViewModelProvider =
+StateNotifierProvider<AiChatViewModel, AiChatState>((ref) {
+  return AiChatViewModel(
+    ref.read(aiChatRepositoryProvider),
+  );
 });

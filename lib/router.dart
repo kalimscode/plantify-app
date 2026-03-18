@@ -8,6 +8,7 @@ import 'package:plantify/features/profile_and_setting/setting_notification/setti
 import 'package:plantify/features/profile_and_setting/vouher_list/voucher_list_screen.dart';
 import 'package:plantify/features/scan/scan_screen.dart';
 import 'app/main_wrapper.dart';
+import 'features/aichat/presentation/views/aichat_screen.dart';
 import 'features/auth/presentation/create_account/presentation/view/create_account_screen.dart';
 import 'features/auth/presentation/login_account/presentation/view/login_account_screen.dart';
 import 'features/auth/presentation/welcome_screen/presentation/view/welcome_screen.dart';
@@ -79,6 +80,7 @@ class AppRouter {
   static const String contactus = '/contactus';
   static const String faq= '/faq';
   static const String customerservice= '/customerservice';
+  static const String aiChat = '/aiChat';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -203,6 +205,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const HelpCenterFaqScreen());
       case customerservice:
         return MaterialPageRoute(builder: (_) => const CustomerServiceScreen());
+
+      case aiChat:
+        return MaterialPageRoute(builder: (_) => const AiChatScreen());
+
       default:
         return MaterialPageRoute(
           builder: (_) => const Scaffold(

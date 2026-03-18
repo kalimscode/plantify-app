@@ -32,11 +32,17 @@ class ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await storage.getAccessToken(); // ✅ FIXED
+          if (!options.path.contains("openrouter.ai")) {
+            final token = await storage.getAccessToken();
 
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
           }
+
+          print("🚀 REQUEST: ${options.uri}");
+          print("📦 HEADERS: ${options.headers}");
+          print("📦 DATA: ${options.data}");
 
           handler.next(options);
         },
