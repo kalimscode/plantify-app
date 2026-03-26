@@ -147,8 +147,9 @@ isDark ? AppColors.fontWhite : AppColors.fontBlack,
                 ),
               ),
             ),
-        SizedBox(height: 37.h),
-            ActionButton(text: 'Confirm Shipping',
+        Padding(
+          padding: EdgeInsets.fromLTRB(24.w, 28.h, 24.w, 24.h),
+          child: ActionButton(text: 'Confirm Shipping',
               onPressed: () {
                 final priceString = shippingMethods[selectedIndex]['price']!;
                 final price =
@@ -156,7 +157,7 @@ isDark ? AppColors.fontWhite : AppColors.fontBlack,
 
                 Navigator.pop(context, price);
               }, ),
-          ],
+        )],
         ),
       ),
     );

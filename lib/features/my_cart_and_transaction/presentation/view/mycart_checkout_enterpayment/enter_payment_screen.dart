@@ -118,46 +118,48 @@ class _CheckoutPaymentScreenState
             variant: ButtonVariant.line,
             size: ButtonSize.full,
           ),),
-            SizedBox(height: 4.h,),
-            ActionButton(
-              text: 'Confirm Payment',
-              variant: ButtonVariant.primary,
-              size: ButtonSize.full,
-                onPressed: () async {
+            Padding(
+              padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 24.h),
+              child: ActionButton(
+                text: 'Confirm Payment',
+                variant: ButtonVariant.primary,
+                size: ButtonSize.full,
+                  onPressed: () async {
 
-                  final cart = ref.read(cartProvider);
-                  final address = ref.read(addressProvider);
+                    final cart = ref.read(cartProvider);
+                    final address = ref.read(addressProvider);
 
-                  if (cart.items.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Cart is empty")),
+                    if (cart.items.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Cart is empty")),
+                      );
+                      return;
+                    }
+
+                    final order = OrderEntity(
+                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      productName: cart.items.first.title,
+                      image: cart.items.first.image,
+                      size: cart.items.first.size,
+                      quantity: cart.items.first.quantity,
+                      price: cart.items.first.price,
+                      shipping: cart.shipping,
+                      total: cart.total,
+                      paymentMethod: payments[selectedIndex]['title']!,
+                      address: address?.address ?? "No address",
+                      date: DateTime.now(),
+                      status: "completed",
                     );
-                    return;
+
+                    await ref.read(orderProvider.notifier).createOrder(order);
+
+                    Navigator.pushNamed(
+                      context,
+                      AppRouter.pinScreen,
+                      arguments: SuccessPopupFlow.paymentPin,
+                    );
                   }
-
-                  final order = OrderEntity(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    productName: cart.items.first.title,
-                    image: cart.items.first.image,
-                    size: cart.items.first.size,
-                    quantity: cart.items.first.quantity,
-                    price: cart.items.first.price,
-                    shipping: cart.shipping,
-                    total: cart.total,
-                    paymentMethod: payments[selectedIndex]['title']!,
-                    address: address?.address ?? "No address",
-                    date: DateTime.now(),
-                    status: "completed",
-                  );
-
-                  await ref.read(orderProvider.notifier).createOrder(order);
-
-                  Navigator.pushNamed(
-                    context,
-                    AppRouter.pinScreen,
-                    arguments: SuccessPopupFlow.paymentPin,
-                  );
-                }
+              ),
             ),
           ],
         ),

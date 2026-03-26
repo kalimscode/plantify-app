@@ -13,7 +13,12 @@ class DetailShareScreen extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.fromLTRB(
+        24.w,
+        24.w,
+        24.w,
+        0.w + MediaQuery.of(context).padding.bottom,
+      ),
       decoration: BoxDecoration(
 color: isDark? AppColors.dark500: AppColors.white500,
         borderRadius: BorderRadius.only(

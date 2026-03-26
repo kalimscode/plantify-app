@@ -18,6 +18,7 @@ class CustomBottomNavBar extends StatelessWidget {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color activeColor = AppColors.main500;
     final Color inactiveColor= AppColors.fontGrey;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     final iconPaths = [
       'assets/SvgIcons/home-03.svg',
@@ -34,7 +35,7 @@ class CustomBottomNavBar extends StatelessWidget {
         ClipPath(
           clipper: BottomNavClipper(),
           child: Container(
-            height: 108.h,
+            height: 60.h + (bottomPadding > 0 ? bottomPadding : 12.h),
             width: double.infinity,
             decoration: BoxDecoration(
               color: Colors.transparent,
@@ -47,35 +48,37 @@ class CustomBottomNavBar extends StatelessWidget {
                   ),
               ],
             ),
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Left icons
-                    Row(
-                      children: [
-                        _buildIcon(iconPaths[0], 0, currentIndex, onTap,
-                            activeColor, inactiveColor),
-                        SizedBox(width: 80.w),
-                        _buildIcon(iconPaths[1], 1, currentIndex, onTap,
-                            activeColor, inactiveColor),
-                      ],
-                    ),
-                    // Right icons
-                    Row(
-                      children: [
-                        _buildIcon(iconPaths[3], 3, currentIndex, onTap,
-                            activeColor, inactiveColor),
-                        SizedBox(width: 80.w),
-                        _buildIcon(iconPaths[4], 4, currentIndex, onTap,
-                            activeColor, inactiveColor),
-                      ],
-                    ),
-                  ],
-                ),
+            child: Padding(
+    padding: EdgeInsets.fromLTRB(
+    24.w,
+    10.h, // small top padding
+    24.w,
+    bottomPadding > 0 ? bottomPadding : 14.h,
+    ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Left icons
+                  Row(
+                    children: [
+                      _buildIcon(iconPaths[0], 0, currentIndex, onTap,
+                          activeColor, inactiveColor),
+                      SizedBox(width: 80.w),
+                      _buildIcon(iconPaths[1], 1, currentIndex, onTap,
+                          activeColor, inactiveColor),
+                    ],
+                  ),
+                  // Right icons
+                  Row(
+                    children: [
+                      _buildIcon(iconPaths[3], 3, currentIndex, onTap,
+                          activeColor, inactiveColor),
+                      SizedBox(width: 80.w),
+                      _buildIcon(iconPaths[4], 4, currentIndex, onTap,
+                          activeColor, inactiveColor),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -83,7 +86,7 @@ class CustomBottomNavBar extends StatelessWidget {
 
         // 🔸 Floating Scanner Button
         Positioned(
-          top: -25.h,
+          top: -24.h,
           child: GestureDetector(
             onTap: () => onTap(2),
             child: Container(
@@ -135,7 +138,6 @@ class CustomBottomNavBar extends StatelessWidget {
   }
 }
 
-/// 🌀 Custom Clipper — smooth concave oval dip under scanner
 class BottomNavClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {

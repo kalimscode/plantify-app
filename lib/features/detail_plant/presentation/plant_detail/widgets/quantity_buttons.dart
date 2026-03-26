@@ -20,7 +20,7 @@ class QtyButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SvgPicture.asset(
-        color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
+        color: AppColors.fontGrey,
         icon,
         width: 28.w,
       ),

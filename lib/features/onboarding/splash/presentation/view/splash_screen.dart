@@ -51,29 +51,32 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.main500,
-      body: Stack(
-        children: [
-          Positioned(
-            top: 421.h,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Image.asset(
-                'assets/logos/plantify_logo.png',
-                width: 380.w,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-          Positioned(
-            top: 717.h,
-            left: 0,
-            right: 0,
-            child: const Center(
-              child: LoadingWidget(),
-            ),
-          ),
-        ],
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'assets/logos/plantify_logo.png',
+                    width: 280.w,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+
+                Positioned(
+                  bottom: 86.h,
+                  left: 0,
+                  right: 0,
+                  child: const Center(
+                    child: LoadingWidget(),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -18,11 +18,9 @@ class OnboardingScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.dark500 : AppColors.white500,
-      body: Stack(
+      body: Column(
         children: [
-          SizedBox(
-            width: 1.sw,
-            height: 462.h,
+          Expanded(
             child: PageView.builder(
               controller: viewModel.pageController,
               itemCount: state.pages.length,
@@ -45,114 +43,97 @@ class OnboardingScreen extends ConsumerWidget {
             ),
           ),
 
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              width: 1.sw,
-              height: 464.h,
-              padding: EdgeInsets.symmetric(
-                horizontal: 24.w,
-                vertical: 24.h,
-              ),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.dark500 : AppColors.white500,
-              ),
-    child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-    SizedBox(
-    height: 8.h,
-    child: Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: List.generate(
-    state.pages.length,
-    (index) => Container(
-    margin: EdgeInsets.symmetric(horizontal: 4.w),
-    width: 8.w,
-    height: 8.w,
-    decoration: ShapeDecoration(
-    color: state.currentPage == index
-    ? AppColors.main500
-        : AppColors.main100,
-    shape: const OvalBorder(),
-    ),
-    ),
-    ),
-    ),
-    ),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w,   16.h + MediaQuery.of(context).padding.bottom),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.dark500 : AppColors.white500,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Dots
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    state.pages.length,
+                        (index) => Container(
+                      margin: EdgeInsets.symmetric(horizontal: 4.w),
+                      width: 8.w,
+                      height: 8.w,
+                      decoration: ShapeDecoration(
+                        color: state.currentPage == index
+                            ? AppColors.main500
+                            : AppColors.main100,
+                        shape: const OvalBorder(),
+                      ),
+                    ),
+                  ),
+                ),
 
-    SizedBox(height: 22.h),
+                SizedBox(height: 52.h),
 
-    SizedBox(
-    height: 58.h,
-    child: Text(
-    state.pages[state.currentPage].title,
-    style: AppTypography.h5Bold.copyWith(
-    color: isDark
-    ? AppColors.fontWhite
-        : AppColors.fontBlack,
-    fontSize: 24.sp,
-    fontWeight: FontWeight.w700,
-    height: 1.3,
-    ),
-    ),
-    ),
+                // Title
+                Text(
+                  state.pages[state.currentPage].title,
+                  style: AppTypography.h5Bold.copyWith(
+                    color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w700,
+                    height: 1.3,
+                  ),
+                ),
 
-    SizedBox(height: 13.h),
+                SizedBox(height: 24.h),
 
-    SizedBox(
-    height: 110.h,
-    child: Text(
-    state.pages[state.currentPage].description,
-    softWrap: true,
-    overflow: TextOverflow.visible,
-    style: AppTypography.bodyMediumRegular.copyWith(
-    color: isDark
-    ? AppColors.fontWhite
-        : AppColors.fontBlack,
-    fontSize: 15.8.sp,
-    fontWeight: FontWeight.w500,
-    ),
-    ),
-    ),
+                // Description
+                Text(
+                  state.pages[state.currentPage].description,
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                  style: AppTypography.bodyMediumRegular.copyWith(
+                    color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
+                    fontSize: 15.8.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
 
-    SizedBox(height: 28.h),
+                SizedBox(height: 52.h),
 
-    SizedBox(
-    child: Column(
-    children: [
-    ActionButton(
-    text: 'Get Started',
-    variant: ButtonVariant.primary,
-    size: ButtonSize.full,
-    onPressed: () {
-    if (state.currentPage ==
-    state.pages.length - 1) {
-    Navigator.pushReplacementNamed(
-    context,
-    AppRouter.welcome,
+                // Buttons
+                ActionButton(
+                  text: 'Get Started',
+                  variant: ButtonVariant.primary,
+                  size: ButtonSize.full,
+                  onPressed: () {
+                    if (state.currentPage == state.pages.length - 1) {
+                      Navigator.pushReplacementNamed(
+                        context,
+                        AppRouter.welcome,
+                      );
+                    } else {
+                      viewModel.nextPage();
+                    }
+                  },
+                ),
+                SizedBox(height: 20.h),
+                ActionButton(
+                  text: 'Skip',
+                  variant: ButtonVariant.line,
+                  size: ButtonSize.full,
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(
+                      context,
+                      AppRouter.welcome,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
-    } else {
-    viewModel.nextPage();
-    }
-    },
-    ),
-    SizedBox(height: 10.h),
-    ActionButton(
-    text: 'Skip',
-    variant: ButtonVariant.secondary,
-    size: ButtonSize.full,
-    onPressed: () {
-    Navigator.pushReplacementNamed(
-    context,
-    AppRouter.welcome,
-    );
-    },
-    ),
-    ],
-    ),
-    ),
-    ],
-    )))]));
-  }}
-
+  }
+}

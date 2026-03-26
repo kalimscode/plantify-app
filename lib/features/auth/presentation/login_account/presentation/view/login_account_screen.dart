@@ -32,6 +32,7 @@ class _LoginAccountScreenState
     return Scaffold(
       backgroundColor: isDark ? AppColors.dark500 : AppColors.white500,
       body: SafeArea(
+        bottom: false,
         child: SingleChildScrollView(
           padding:
           EdgeInsets.symmetric(horizontal: 24.w, vertical: 30.h),
@@ -186,7 +187,7 @@ class _LoginAccountScreenState
                   ),
                 ),
               ),
-              SizedBox(height: 175.h),
+              SizedBox(height: 175.h + MediaQuery.of(context).padding.bottom),
             ],
           ),
         ),

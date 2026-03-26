@@ -23,12 +23,10 @@ class PlantDetailScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PlantDetailScreen> createState() =>
-      _PlantDetailScreenState();
+  ConsumerState<PlantDetailScreen> createState() => _PlantDetailScreenState();
 }
 
-class _PlantDetailScreenState
-    extends ConsumerState<PlantDetailScreen> {
+class _PlantDetailScreenState extends ConsumerState<PlantDetailScreen> {
   int quantity = 1;
 
   void _openShareSheet() {
@@ -37,7 +35,7 @@ class _PlantDetailScreenState
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withOpacity(0.65),
       isScrollControlled: true,
-      builder: (_) =>  const DetailShareScreen(),
+      builder: (_) => const DetailShareScreen(),
     );
   }
 
@@ -53,32 +51,36 @@ class _PlantDetailScreenState
           children: [
             Padding(
               padding: EdgeInsets.all(24.w),
-              child: Navigation3(title: product.title, leadingIconPath: 'assets/SvgIcons/arrow-narrow-left.svg',
-                onLeadingTap: ()=>Navigator.pop(context) ,
-                  trailingIconPath1: 'assets/SvgIcons/heart-rounded.svg',
-                  onTrailing1Tap: ()=> Navigator.pushNamed(context, AppRouter.favoriteplantscreen),
-                  trailingIconPath2: 'assets/SvgIcons/share-06.svg',
-              onTrailing2Tap: _openShareSheet,
-            )),
+              child: Navigation3(
+                title: product.title,
+                leadingIconPath: 'assets/SvgIcons/arrow-narrow-left.svg',
+                onLeadingTap: () => Navigator.pop(context),
+                trailingIconPath1: 'assets/SvgIcons/heart-rounded.svg',
+                onTrailing1Tap: () => Navigator.pushNamed(
+                    context, AppRouter.favoriteplantscreen),
+                trailingIconPath2: 'assets/SvgIcons/share-06.svg',
+                onTrailing2Tap: _openShareSheet,
+              ),
+            ),
 
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 24.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 24.h),
-
-                    Center(
-                      child: Image.asset(
-                        product.imagePath,
-                        height: 280.h,
-                        fit: BoxFit.contain,
+                    Expanded(
+                      child: Center(
+                        child: Image.asset(
+                          product.imagePath,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
 
                     SizedBox(height: 32.h),
 
+                    // Title + cart icon
                     Row(
                       children: [
                         Expanded(
@@ -92,11 +94,8 @@ class _PlantDetailScreenState
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {
-                           Navigator.pushNamed(context, AppRouter.myCartList,
-
-                            );
-                          },
+                          onTap: () => Navigator.pushNamed(
+                              context, AppRouter.myCartList),
                           child: SvgPicture.asset(
                             "assets/SvgIcons/shopping-cart-03.svg",
                             width: 24.w,
@@ -117,20 +116,18 @@ class _PlantDetailScreenState
                       children: [
                         SoldOutChip(text: "745 Sold"),
                         SizedBox(width: 12.w),
-                        SvgPicture.asset(
-                          "assets/SvgIcons/Star.svg",
-                          width: 16.w,
-                        ),
+                        SvgPicture.asset("assets/SvgIcons/Star.svg",
+                            width: 16.w),
                         SizedBox(width: 6.w),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, AppRouter.detailreview,
-                            );
-                          },
+                          onTap: () => Navigator.pushNamed(
+                              context, AppRouter.detailreview),
                           child: Text(
                             "4.7 (3242 Review)",
                             style: AppTypography.bodySmallMedium.copyWith(
-                              color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
+                              color: isDark
+                                  ? AppColors.fontWhite
+                                  : AppColors.fontBlack,
                             ),
                           ),
                         ),
@@ -139,43 +136,52 @@ class _PlantDetailScreenState
 
                     SizedBox(height: 35.h),
 
+                    // Description
                     Text(
                       "Description",
                       style: AppTypography.bodyLargeBold.copyWith(
-                        color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
-                      )
+                        color: isDark
+                            ? AppColors.fontWhite
+                            : AppColors.fontBlack,
+                      ),
                     ),
                     SizedBox(height: 8.h),
                     Text(
                       "This tropical house plant is a structural sensation within your home or office decor. It's variegated leaves show off dark green to lighter greenish-gray horizontal bands with light yellow margins.",
                       style: AppTypography.bodySmallMedium.copyWith(
-                        color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
+                        color: isDark
+                            ? AppColors.fontWhite
+                            : AppColors.fontBlack,
                         height: 1.6,
                       ),
                     ),
 
                     SizedBox(height: 28.h),
 
+                    // Detail items
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
                         DetailItem(title: "Size", value: "Medium"),
                         DetailItem(title: "Plant", value: "ZZ Plant"),
-                        DetailItem(title: "Height", value: "20.5”"),
-                        DetailItem(title: "Humidity", value: "80%"),
+                        DetailItem(title: "Height", value: "20.5"),
+                            DetailItem(title: "Humidity", value: "80%"),
                       ],
                     ),
 
                     SizedBox(height: 32.h),
 
+                    // Quantity row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           "Quantity",
                           style: AppTypography.bodyLargeBold.copyWith(
-                            color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
-                          )
+                            color: isDark
+                                ? AppColors.fontWhite
+                                : AppColors.fontBlack,
+                          ),
                         ),
                         Row(
                           children: [
@@ -195,90 +201,77 @@ class _PlantDetailScreenState
                             SizedBox(width: 16.w),
                             QtyButton(
                               icon: "assets/SvgIcons/plus-square.svg",
-                              onTap: () {
-                                setState(() => quantity++);
-                              },
+                              onTap: () => setState(() => quantity++),
                             ),
                           ],
                         ),
                       ],
                     ),
 
-                    SizedBox(height: 30.h),
-                  ],
-                ),
-              ),
-            ),
+                    SizedBox(height: 20.h),
 
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 24.w,
-                vertical: 16.h,
-              ),
-              color: isDark ? AppColors.dark500 : Colors.white,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Price",
-                        style: AppTypography.bodyLargeBold,
-                      ),
-                      SizedBox(height: 5.h),
-                      Text(
-                        "\$${product.price.toStringAsFixed(2)}",
-                        style: AppTypography.h5Bold,
-                      ),
-                    ],
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.main500,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 28.w,
-                        vertical: 14.h,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                    ),
-                    onPressed: () async {
-
-                      final notifier = ref.read(cartProvider.notifier);
-
-                      await notifier.addToCart(product, quantity);
-
-                      await notifier.loadCart();
-
-                      if (context.mounted) {
-                        Navigator.pushNamed(context, AppRouter.myCartList,
-                        );
-                      }
-                    },
-                    child: Row(
+                    // Price + Buy Now row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SvgPicture.asset(
-                          "assets/SvgIcons/shopping-bag-02.svg",
-                          width: 20.w,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.white,
-                            BlendMode.srcIn,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Price",
+                              style: AppTypography.bodyLargeBold,
+                            ),
+                            SizedBox(height: 5.h),
+                            Text(
+                              "\$${product.price.toStringAsFixed(2)}",
+                              style: AppTypography.h5Bold,
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 10.w),
-                        Text(
-                          "Buy Now",
-                          style:
-                          AppTypography.bodyMediumBold.copyWith(
-                            color: Colors.white,
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.main500,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 28.w,
+                              vertical: 14.h,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          onPressed: () async {
+                            final notifier = ref.read(cartProvider.notifier);
+                            await notifier.addToCart(product, quantity);
+                            await notifier.loadCart();
+                            if (context.mounted) {
+                              Navigator.pushNamed(
+                                  context, AppRouter.myCartList);
+                            }
+                          },
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                "assets/SvgIcons/shopping-bag-02.svg",
+                                width: 20.w,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              SizedBox(width: 10.w),
+                              Text(
+                                "Buy Now",
+                                style: AppTypography.bodyMediumBold.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

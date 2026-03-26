@@ -71,6 +71,7 @@ return false;
         backgroundColor:
         isDark ? AppColors.dark500 : AppColors.white500,
         body: SafeArea(
+          bottom: false,
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
               horizontal: 24.w,
@@ -225,8 +226,8 @@ return false;
                     ),
                   ),
                 ),
+                SizedBox(height: 68.h + MediaQuery.of(context).viewPadding.bottom),
 
-                SizedBox(height: 68.h),
               ],
             ),
           ),
