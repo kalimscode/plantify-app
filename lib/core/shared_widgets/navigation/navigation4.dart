@@ -14,6 +14,10 @@ class Navigation4 extends StatelessWidget {
   final VoidCallback? onBellTap;
   final VoidCallback? onHeartTap;
 
+  final VoidCallback? onAvatarTap;
+  final VoidCallback? onNameTap;
+  final VoidCallback? onLocationTap;
+
   const Navigation4({
     super.key,
     required this.name,
@@ -21,6 +25,9 @@ class Navigation4 extends StatelessWidget {
     this.imagePath,
     this.onBellTap,
     this.onHeartTap,
+    this.onAvatarTap,
+    this.onNameTap,
+    this.onLocationTap,
   });
 
   @override
@@ -34,74 +41,81 @@ class Navigation4 extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 👤 Left Section (Avatar + Name + Location)
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Avatar
-                Container(
-                  width: 48.w,
-                  height: 48.w,
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100.r),
+                // Avatar — tappable → profile screen
+                GestureDetector(
+                  onTap: onAvatarTap,
+                  child: Container(
+                    width: 48.w,
+                    height: 48.w,
+                    decoration: ShapeDecoration(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100.r),
+                      ),
                     ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(100.r),
-                    child: imagePath != null && imagePath!.isNotEmpty
-                        ? Image.file(
-                      File(imagePath!),
-                      fit: BoxFit.cover,
-                    )
-                        : Image.asset(
-                      'assets/images/default_avatar.jpg',
-                      fit: BoxFit.cover,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100.r),
+                      child: imagePath != null && imagePath!.isNotEmpty
+                          ? Image.file(File(imagePath!), fit: BoxFit.cover)
+                          : Image.asset(
+                        'assets/images/default_avatar.jpg',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
                 SizedBox(width: 12.w),
 
-                // Name and Location
+                // Name + Location column
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        name,
-                        style: AppTypography.bodyMediumBold.copyWith(
-                          color: isDark
-                              ? AppColors.fontWhite
-                              : AppColors.fontBlack,
-                          fontSize: 17.sp,
+                      // Name — tappable → profile screen
+                      GestureDetector(
+                        onTap: onNameTap,
+                        child: Text(
+                          name,
+                          style: AppTypography.bodyMediumBold.copyWith(
+                            color: isDark
+                                ? AppColors.fontWhite
+                                : AppColors.fontBlack,
+                            fontSize: 17.sp,
+                          ),
                         ),
                       ),
-                      SizedBox(height: 8.h), // ← changed from 4.h to 8.h
-                      Row(
-                        children: [
-                          SvgPicture.asset(
-                            'assets/SvgIcons/marker-pin-01.svg',
-                            width: 17.w,
-                            height: 17.w,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.fontGrey,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          SizedBox(width: 4.w),
-                          Flexible(
-                            child: Text(
-                              location,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTypography.bodyNormalMedium.copyWith(
-                                color: AppColors.fontGrey,
-                                fontSize: 14.sp,
+                      SizedBox(height: 8.h),
+
+                      GestureDetector(
+                        onTap: onLocationTap,
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(
+                              'assets/SvgIcons/marker-pin-01.svg',
+                              width: 17.w,
+                              height: 17.w,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.fontGrey,
+                                BlendMode.srcIn,
                               ),
                             ),
-                          ),
-                        ],
+                            SizedBox(width: 4.w),
+                            Flexible(
+                              child: Text(
+                                location.isNotEmpty ? location : 'Add address',
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.bodyNormalMedium.copyWith(
+                                  color: AppColors.fontGrey,
+                                  fontSize: 14.sp,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -110,7 +124,6 @@ class Navigation4 extends StatelessWidget {
             ),
           ),
 
-          // 🔔 & ❤️ Right Section Icons
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -131,7 +144,6 @@ class Navigation4 extends StatelessWidget {
                       width: 22.w,
                       height: 22.h,
                       color: AppColors.main500,
-
                     ),
                   ),
                 ),
@@ -154,7 +166,6 @@ class Navigation4 extends StatelessWidget {
                       width: 22.w,
                       height: 22.w,
                       color: AppColors.main500,
-
                     ),
                   ),
                 ),

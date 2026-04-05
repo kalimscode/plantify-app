@@ -203,6 +203,32 @@ class CartNotifier extends StateNotifier<CartState> {
     await loadCart();
   }
 
+  /// CLEAR CART
+
+  Future<void> clearCart() async {
+
+    /// LOCAL MODE — wipe the in-memory list directly
+    if (state.isLocalMode) {
+      _localCart = [];
+      state = state.copyWith(items: []);
+      return;
+    }
+
+    /// API MODE — remove every item from the server, then sync state
+    final itemsToRemove = [...state.items];
+    for (final item in itemsToRemove) {
+      try {
+        await repository.removeCart(item.id);
+      } catch (e) {
+        print("CLEAR CART REMOVE ERROR: $e");
+      }
+    }
+
+    // Reset local state regardless of API errors
+    _localCart = [];
+    state = state.copyWith(items: []);
+  }
+
   /// SHIPPING
   void setShipping(double value) {
 

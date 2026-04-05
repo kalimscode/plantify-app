@@ -10,7 +10,6 @@ import '../../../../../core/shared_widgets/sort_by/sort_by.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 
-
 class FavoritePlantScreen extends ConsumerWidget {
   const FavoritePlantScreen({Key? key}) : super(key: key);
 
@@ -27,8 +26,7 @@ class FavoritePlantScreen extends ConsumerWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 28.h),
           child: productsState.when(
-            loading: () =>
-            const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) =>
             const Center(child: Text("Failed to load favorites")),
             data: (products) {
@@ -38,12 +36,9 @@ class FavoritePlantScreen extends ConsumerWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// 🔙 Top Navigation
                   Navigation1(
                     title: 'Favorites',
-                    onBackPressed: () {
-                      Navigator.pop(context);
-                    },
+                    onBackPressed: () => Navigator.pop(context),
                   ),
 
                   SizedBox(height: 24.h),
@@ -60,8 +55,6 @@ class FavoritePlantScreen extends ConsumerWidget {
                               height: 160.h,
                             ),
                             SizedBox(height: 24.h),
-
-                            /// Title
                             SizedBox(
                               width: 380.w,
                               child: Text(
@@ -71,27 +64,23 @@ class FavoritePlantScreen extends ConsumerWidget {
                                   color: isDark
                                       ? AppColors.fontWhite
                                       : Colors.black,
-                                )
+                                ),
                               ),
                             ),
-
                             SizedBox(height: 12.h),
-
                             SizedBox(
                               width: 268.w,
                               child: Text(
                                 "You don't have a favorite plant list yet",
                                 textAlign: TextAlign.center,
-                                style: AppTypography.bodyNormalRegular.copyWith(
-                                  color: AppColors.fontGrey
-                                )
+                                style: AppTypography.bodyNormalRegular
+                                    .copyWith(color: AppColors.fontGrey),
                               ),
                             ),
                           ],
                         ),
                       ),
                     )
-
                   else ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -99,11 +88,10 @@ class FavoritePlantScreen extends ConsumerWidget {
                         Text(
                           "${favoritePlants.length} Plants",
                           style: AppTypography.bodyLargeBold.copyWith(
-                            color: isDark ? AppColors.fontWhite : Colors.black
-                          )
+                            color:
+                            isDark ? AppColors.fontWhite : Colors.black,
+                          ),
                         ),
-
-                        /// Sort Button
                         GestureDetector(
                           onTap: () {
                             showModalBottomSheet(
@@ -122,12 +110,10 @@ class FavoritePlantScreen extends ConsumerWidget {
                                       ),
                                     ),
                                     Align(
-                                      alignment:
-                                      Alignment.bottomCenter,
+                                      alignment: Alignment.bottomCenter,
                                       child: SortByBottomSheet(
                                         name: "Sort By",
-                                        selectedOption:
-                                        selectedSort,
+                                        selectedOption: selectedSort,
                                         options: const [
                                           "Latest Saved",
                                           "Longest Saved",
@@ -135,10 +121,8 @@ class FavoritePlantScreen extends ConsumerWidget {
                                           "Highest Price",
                                           "Lowest Price",
                                         ],
-                                        onOptionSelected:
-                                            (option) {
-                                          selectedSort =
-                                              option;
+                                        onOptionSelected: (option) {
+                                          selectedSort = option;
                                         },
                                       ),
                                     ),
@@ -151,18 +135,15 @@ class FavoritePlantScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 "Sort",
-                                style: AppTypography
-                                    .bodyMediumMedium
-                                    .copyWith(
-                                  color: AppColors.fontGrey,
-                                ),
+                                style: AppTypography.bodyMediumMedium
+                                    .copyWith(color: AppColors.fontGrey),
                               ),
                               SizedBox(width: 8.w),
                               SvgPicture.asset(
                                 "assets/SvgIcons/sort.svg",
                                 width: 24.w,
                                 height: 24.h,
-                               color: AppColors.fontGrey,
+                                color: AppColors.fontGrey,
                               ),
                             ],
                           ),
@@ -183,20 +164,30 @@ class FavoritePlantScreen extends ConsumerWidget {
                           childAspectRatio: 176 / 310,
                         ),
                         itemBuilder: (context, index) {
-                          final product =
-                          favoritePlants[index];
-
+                          final product = favoritePlants[index];
                           final originalIndex =
-                          products.indexWhere(
-                                  (p) => p.id == product.id);
+                          products.indexWhere((p) => p.id == product.id);
 
                           return ProductCard(
                             product: product,
-                            onLikeToggle: () {
-                              ref
-                                  .read(homeViewModelProvider
-                                  .notifier)
-                                  .toggleLike(originalIndex);
+                            onLikeToggle: () => ref
+                                .read(homeViewModelProvider.notifier)
+                                .toggleLike(originalIndex),
+                            // ✅ Add to cart from favorites grid
+                            onAddToCart: () async {
+                              await ref
+                                  .read(cartProvider.notifier)
+                                  .addToCart(product, 1);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        '${product.title} added to cart'),
+                                    duration: const Duration(seconds: 1),
+                                    backgroundColor: AppColors.main500,
+                                  ),
+                                );
+                              }
                             },
                           );
                         },

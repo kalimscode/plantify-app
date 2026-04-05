@@ -20,9 +20,7 @@ class CreateAccountScreen extends ConsumerStatefulWidget {
       _CreateAccountScreenState();
 }
 
-class _CreateAccountScreenState
-    extends ConsumerState<CreateAccountScreen> {
-
+class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   bool _navigated = false;
 
   @override
@@ -47,7 +45,7 @@ class _CreateAccountScreenState
 
           Future.delayed(const Duration(milliseconds: 700), () {
             if (mounted) {
-              Navigator.pushReplacementNamed(context, AppRouter.setupProfile);
+              Navigator.pushReplacementNamed(context, AppRouter.mainWrapper);
             }
           });
         }
@@ -59,17 +57,16 @@ class _CreateAccountScreenState
             type: SnackBarType.error,
           );
         }
-          },
+      },
     );
 
     return WillPopScope(
       onWillPop: () async {
         Navigator.pop(context);
-return false;
+        return false;
       },
       child: Scaffold(
-        backgroundColor:
-        isDark ? AppColors.dark500 : AppColors.white500,
+        backgroundColor: isDark ? AppColors.dark500 : AppColors.white500,
         body: SafeArea(
           bottom: false,
           child: SingleChildScrollView(
@@ -80,14 +77,11 @@ return false;
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 /// TITLE
                 Text(
                   'Create Your\nAccount',
                   style: AppTypography.h4Bold.copyWith(
-                    color: isDark
-                        ? AppColors.fontWhite
-                        : AppColors.fontBlack,
+                    color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
                     height: 1.22,
                   ),
                 ),
@@ -172,12 +166,10 @@ return false;
                 /// SIGN UP BUTTON
                 ActionButton(
                   text: state.isLoading ? "Creating..." : "Sign Up",
-                  onPressed:
-                  state.isFormValid && !state.isLoading
+                  onPressed: state.isFormValid && !state.isLoading
                       ? notifier.register
                       : null,
                   variant: ButtonVariant.primary,
-
                 ),
 
                 SizedBox(height: 28.h),
@@ -207,8 +199,7 @@ return false;
                         children: [
                           TextSpan(
                             text: "Already have an account? ",
-                            style:
-                            AppTypography.bodyMediumRegular.copyWith(
+                            style: AppTypography.bodyMediumRegular.copyWith(
                               color: isDark
                                   ? AppColors.fontWhite
                                   : AppColors.fontBlack,
@@ -216,8 +207,7 @@ return false;
                           ),
                           TextSpan(
                             text: "Sign In",
-                            style:
-                            AppTypography.bodyMediumBold.copyWith(
+                            style: AppTypography.bodyMediumBold.copyWith(
                               color: AppColors.main500,
                             ),
                           ),
@@ -226,8 +216,9 @@ return false;
                     ),
                   ),
                 ),
-                SizedBox(height: 68.h + MediaQuery.of(context).viewPadding.bottom),
-
+                SizedBox(
+                    height: 68.h +
+                        MediaQuery.of(context).viewPadding.bottom),
               ],
             ),
           ),

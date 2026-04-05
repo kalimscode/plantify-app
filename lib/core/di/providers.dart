@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/aichat/data/datasource/aichat_remote_datasource.dart';
 import '../../features/aichat/data/repository/aichat_repository_impl.dart';
-import '../../features/aichat/domain/entities/aichat_message.dart';
 import '../../features/aichat/domain/repository/aichat_repository.dart';
 import '../../features/aichat/presentation/viewmodel/aichat_viewmodel.dart';
 import '../../features/auth/presentation/create_account/presentation/viewmodel/create_account_state.dart';
@@ -66,7 +65,8 @@ import '../../features/auth/data/datasource/auth_remote_datasource.dart';
 import '../../features/auth/data/repository/auth_repository_impl.dart';
 
 
-//spalsh
+// ─── SPLASH ───────────────────────────────────────────────────────────────────
+
 final splashRepositoryProvider = Provider<SplashRepositoryImpl>(
       (ref) => SplashRepositoryImpl(),
 );
@@ -77,11 +77,11 @@ final splashUseCaseProvider = Provider<SplashUseCase>(
 
 final splashViewModelProvider =
 StateNotifierProvider<SplashViewModel, bool>((ref) {
-  final useCase = ref.read(splashUseCaseProvider);
-  return SplashViewModel(useCase: useCase);
+  return SplashViewModel(useCase: ref.read(splashUseCaseProvider));
 });
 
-//onboarding
+// ─── ONBOARDING ───────────────────────────────────────────────────────────────
+
 final onboardingDataSourceProvider =
 Provider<OnboardingLocalDataSource>((ref) {
   return OnboardingLocalDataSourceImpl();
@@ -89,76 +89,71 @@ Provider<OnboardingLocalDataSource>((ref) {
 
 final onboardingViewModelProvider =
 StateNotifierProvider<OnboardingViewModel, OnboardingState>((ref) {
-  final dataSource = ref.read(onboardingDataSourceProvider);
-  return OnboardingViewModel(dataSource);
+  return OnboardingViewModel(ref.read(onboardingDataSourceProvider));
 });
 
-//welcome
-final welcomeActionsProvider =
-Provider<WelcomeActions>((ref) {
+// ─── WELCOME ──────────────────────────────────────────────────────────────────
+
+final welcomeActionsProvider = Provider<WelcomeActions>((ref) {
   return WelcomeActionsImpl();
 });
 
 final welcomeViewModelProvider =
 StateNotifierProvider<WelcomeViewModel, WelcomeState>((ref) {
-  final actions = ref.read(welcomeActionsProvider);
-  return WelcomeViewModel(actions);
+  return WelcomeViewModel(ref.read(welcomeActionsProvider));
 });
-
 
 final createAccountProvider =
 StateNotifierProvider.autoDispose<CreateAccountViewModel, CreateAccountState>(
       (ref) => CreateAccountViewModel(ref.read(authRepositoryProvider), ref),
 );
 
-/* ---------------- STORAGE ---------------- */
+// ─── STORAGE ──────────────────────────────────────────────────────────────────
 
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
-  throw UnimplementedError(); // will be overridden in main()
+  throw UnimplementedError(); // overridden in main()
 });
 
 final tokenStorageProvider = Provider<TokenStorage>((ref) {
-  final prefs = ref.read(sharedPreferencesProvider);
-  return TokenStorageImpl(prefs);
+  return TokenStorageImpl(ref.read(sharedPreferencesProvider));
 });
+
 final localStorageProvider = Provider<LocalStorage>((ref) {
   return LocalStorage(ref.read(sharedPreferencesProvider));
 });
 
-/* ---------------- API CLIENT ---------------- */
+// ─── API CLIENT ───────────────────────────────────────────────────────────────
 
 final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient(
-    ref.read(tokenStorageProvider),
-  );
+  return ApiClient(ref.read(tokenStorageProvider));
 });
+
+// ─── FORGOT PASSWORD ──────────────────────────────────────────────────────────
 
 final forgotPasswordProvider =
 StateNotifierProvider<ForgotPasswordViewModel, ForgotPasswordEntity>(
       (ref) => ForgotPasswordViewModel(),
 );
 
-/* ---------------- PROFILE ---------------- */
-final forgotPasswordOtpProvider = StateNotifierProvider<
-    ForgotPasswordOtpViewModel, ForgotPasswordOtpState>(
+final forgotPasswordOtpProvider =
+StateNotifierProvider<ForgotPasswordOtpViewModel, ForgotPasswordOtpState>(
       (ref) => ForgotPasswordOtpViewModel(),
 );
 
-final profileLocalDataSourceProvider =
-Provider<ProfileLocalDataSource>((ref) {
-  return ProfileLocalDataSource(ref.read(localStorageProvider));
-});
-
-/// ✅ Provider for the [NewPasswordViewModel]
 final newPasswordViewModelProvider =
 StateNotifierProvider<NewPasswordViewModel, NewPasswordState>(
       (ref) => NewPasswordViewModel(),
 );
 
-/// ✅ Provider for accessing just the PasswordEntity (domain data)
 final passwordEntityProvider = Provider<PasswordEntity>((ref) {
-  final state = ref.watch(newPasswordViewModelProvider);
-  return state.passwordEntity;
+  return ref.watch(newPasswordViewModelProvider).passwordEntity;
+});
+
+// ─── PROFILE ──────────────────────────────────────────────────────────────────
+
+final profileLocalDataSourceProvider =
+Provider<ProfileLocalDataSource>((ref) {
+  return ProfileLocalDataSource(ref.read(localStorageProvider));
 });
 
 final profileRemoteDataSourceProvider =
@@ -167,20 +162,17 @@ Provider<ProfileRemoteDataSource>((ref) {
 });
 
 final profileRepositoryProvider = Provider<ProfileRepositoryImpl>((ref) {
-
   return ProfileRepositoryImpl(
     ref.read(profileLocalDataSourceProvider),
+    ref.read(profileRemoteDataSourceProvider),
   );
 });
 
-/* ---------------- AUTH ---------------- */
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
 
 final loginAccountViewModelProvider =
 StateNotifierProvider<LoginAccountViewModel, LoginAccountModel>(
-      (ref) => LoginAccountViewModel(
-    ref.read(authRepositoryProvider),
-    ref,
-  ),
+      (ref) => LoginAccountViewModel(ref.read(authRepositoryProvider), ref),
 );
 
 final authRemoteDataSourceProvider =
@@ -195,206 +187,160 @@ final authRepositoryProvider = Provider<AuthRepositoryImpl>((ref) {
   );
 });
 
+// ─── SETUP PROFILE ────────────────────────────────────────────────────────────
+
 final setupProfileViewModelProvider =
-StateNotifierProvider<SetupProfileViewModel, SetupProfileState>((ref) {
+StateNotifierProvider.autoDispose<SetupProfileViewModel, SetupProfileState>(
+      (ref) {
+    final repo = ref.read(profileRepositoryProvider);
+    final storage = ref.read(tokenStorageProvider);
+    return SetupProfileViewModel(
+      SaveProfileUseCase(repo),
+      storage,
+      getProfileUseCase: GetProfileUseCase(repo),
+    );
+  },
+);
 
-  final repo = ref.read(profileRepositoryProvider);
-  final storage = ref.read(tokenStorageProvider);
-
-  return SetupProfileViewModel(
-    SaveProfileUseCase(repo),
-    storage,
-    getProfileUseCase: GetProfileUseCase(repo),
-  );
-});
+// ─── ADDRESS ──────────────────────────────────────────────────────────────────
 
 final addNewAddressProvider =
-StateNotifierProvider<AddNewAddressViewModel, AddNewAddressState>((ref) {
-
-  final repo = ref.read(addressRepositoryProvider);
-
-  final useCase = SaveAddressUseCase(repo);
-
-  final storage = ref.read(tokenStorageProvider);
-
-  return AddNewAddressViewModel(useCase, storage, ref);
-});
+StateNotifierProvider.autoDispose<AddNewAddressViewModel, AddNewAddressState>(
+      (ref) {
+    final repo = ref.read(addressRepositoryProvider);
+    final storage = ref.read(tokenStorageProvider);
+    return AddNewAddressViewModel(SaveAddressUseCase(repo), storage, ref);
+  },
+);
 
 final addressLocalDataSourceProvider =
 Provider<AddressLocalDataSource>((ref) {
-
-  final storage = ref.read(localStorageProvider);
-
-  return AddressLocalDataSourceImpl(storage);
+  return AddressLocalDataSourceImpl(ref.read(localStorageProvider));
 });
 
-final addressRepositoryProvider =
-Provider<AddressRepository>((ref) {
-
-  final local = ref.read(addressLocalDataSourceProvider);
-
-  return AddressRepositoryImpl(local);
+final addressRepositoryProvider = Provider<AddressRepository>((ref) {
+  return AddressRepositoryImpl(ref.read(addressLocalDataSourceProvider));
 });
 
 final addressListProvider =
 FutureProvider.family<List<AddressEntity>, String>((ref, email) async {
-
-  final repo = ref.read(addressRepositoryProvider);
-
-  return repo.getAddresses(email);
+  return ref.read(addressRepositoryProvider).getAddresses(email);
 });
-final addressProvider =
-StateProvider<AddressEntity?>((ref) => null);
+
+final addressProvider = StateProvider<AddressEntity?>((ref) => null);
 
 final emailProvider = FutureProvider<String?>((ref) async {
-  final storage = ref.read(tokenStorageProvider);
-  return storage.getEmail();
+  return ref.read(tokenStorageProvider).getEmail();
 });
+
 final userEmailProvider = FutureProvider<String?>((ref) async {
-  final storage = ref.read(tokenStorageProvider);
-  return storage.getEmail();
+  return ref.read(tokenStorageProvider).getEmail();
 });
+
+// ─── SESSION ──────────────────────────────────────────────────────────────────
 
 final userSessionProvider =
 StateNotifierProvider<UserSessionNotifier, String?>((ref) {
-
-  final storage = ref.read(tokenStorageProvider);
-
-  return UserSessionNotifier(storage);
+  return UserSessionNotifier(ref.read(tokenStorageProvider));
 });
 
 final userProfileProvider = FutureProvider<ProfileEntity?>((ref) async {
-
   final email = ref.watch(userSessionProvider);
-
   if (email == null) return null;
-
-  final repo = ref.read(profileRepositoryProvider);
-
-  return repo.getProfile(email);
+  return ref.read(profileRepositoryProvider).getProfile(email);
 });
 
 final userAddressesProvider =
 FutureProvider<List<AddressEntity>>((ref) async {
-
   final email = ref.watch(userSessionProvider);
-
-  if(email == null) return [];
-
-  final repo = ref.read(addressRepositoryProvider);
-
-  return repo.getAddresses(email);
+  if (email == null) return [];
+  return ref.read(addressRepositoryProvider).getAddresses(email);
 });
+
+// ─── PIN ──────────────────────────────────────────────────────────────────────
 
 final pinViewModelProvider =
 ChangeNotifierProvider.autoDispose<PinViewModel>((ref) {
   return PinViewModel();
 });
-/* ---------------- PRODUCTS ---------------- */
+
+// ─── PRODUCTS ─────────────────────────────────────────────────────────────────
 
 final productRemoteDataSourceProvider =
 Provider<ProductRemoteDataSource>((ref) {
-  return ProductRemoteDataSource(
-    ref.read(apiClientProvider),
-  );
+  return ProductRemoteDataSource(ref.read(apiClientProvider));
 });
 
 final productRepositoryProvider = Provider<ProductRepository>((ref) {
-  final apiClient = ref.read(apiClientProvider);
-
   return ProductRepositoryImpl(
-    ProductRemoteDataSource(apiClient),
+    ProductRemoteDataSource(ref.read(apiClientProvider)),
     LocalProductDataSource(),
   );
 });
 
 final favouriteRemoteDataSourceProvider =
 Provider<FavouriteRemoteDataSource>((ref) {
-  return FavouriteRemoteDataSource(
-    ref.read(apiClientProvider),
-  );
+  return FavouriteRemoteDataSource(ref.read(apiClientProvider));
 });
 
 final localProductDataSourceProvider =
-Provider<LocalProductDataSource>((ref) {
-  return LocalProductDataSource();
-});
+Provider<LocalProductDataSource>((ref) => LocalProductDataSource());
 
 final homeViewModelProvider =
-StateNotifierProvider<HomeViewModel,
-    AsyncValue<List<ProductUiModel>>>((ref) {
-  return HomeViewModel(
+StateNotifierProvider<HomeViewModel, AsyncValue<List<ProductUiModel>>>(
+      (ref) => HomeViewModel(
     ref.read(productRepositoryProvider),
     ref.read(favouriteRemoteDataSourceProvider),
     ref.read(localProductDataSourceProvider),
-  );
+  ),
+);
+
+// ─── CART ─────────────────────────────────────────────────────────────────────
+
+final cartProvider = StateNotifierProvider<CartNotifier, CartState>((ref) {
+  return CartNotifier(ref.watch(cartRepositoryProvider));
 });
 
-
-final cartProvider =
-StateNotifierProvider<CartNotifier, CartState>((ref) {
-  final repository = ref.watch(cartRepositoryProvider);
-  return CartNotifier(repository);
-});
 final cartRepositoryProvider = Provider<CartRepository>((ref) {
-  final remote = ref.watch(cartRemoteDataSourceProvider);
-  return CartRepositoryImpl(remote);
+  return CartRepositoryImpl(ref.watch(cartRemoteDataSourceProvider));
 });
 
 final cartRemoteDataSourceProvider =
 Provider<CartRemoteDataSource>((ref) {
-
-  final apiClient = ref.watch(apiClientProvider);
-  final tokenStorage = ref.watch(tokenStorageProvider);
-
   return CartRemoteDataSource(
-    apiClient.dio,
-    tokenStorage,
+    ref.watch(apiClientProvider).dio,
+    ref.watch(tokenStorageProvider),
   );
 });
 
-/// ORDER REMOTE
+// ─── ORDER ────────────────────────────────────────────────────────────────────
+
 final orderRemoteDataSourceProvider =
 Provider<OrderRemoteDataSource>((ref) {
-
-  final api = ref.watch(apiClientProvider);
-
-  return OrderRemoteDataSource(api);
+  return OrderRemoteDataSource(ref.watch(apiClientProvider));
 });
 
-/// ORDER REPOSITORY
-final orderRepositoryProvider =
-Provider<OrderRepository>((ref) {
-
-  final remote = ref.watch(orderRemoteDataSourceProvider);
-
-  return OrderRepositoryImpl(remote);
+final orderRepositoryProvider = Provider<OrderRepository>((ref) {
+  return OrderRepositoryImpl(ref.watch(orderRemoteDataSourceProvider));
 });
+
 final orderProvider =
 StateNotifierProvider<OrderViewModel, OrderState>((ref) {
-
-  final repo = ref.watch(orderRepositoryProvider);
-
-  return OrderViewModel(repo);
+  return OrderViewModel(ref.watch(orderRepositoryProvider));
 });
 
-// AI CHAT
+// ─── AI CHAT ──────────────────────────────────────────────────────────────────
 
 final aiChatRemoteDataSourceProvider =
 Provider<AiChatRemoteDataSource>((ref) {
   return AiChatRemoteDataSource(ref.read(apiClientProvider));
 });
 
-final aiChatRepositoryProvider =
-Provider<AiChatRepository>((ref) {
-  return AiChatRepositoryImpl(
-    ref.read(aiChatRemoteDataSourceProvider),
-  );
+final aiChatRepositoryProvider = Provider<AiChatRepository>((ref) {
+  return AiChatRepositoryImpl(ref.read(aiChatRemoteDataSourceProvider));
 });
 
 final aiChatViewModelProvider =
 StateNotifierProvider<AiChatViewModel, AiChatState>((ref) {
-  return AiChatViewModel(
-    ref.read(aiChatRepositoryProvider),
-  );
+  return AiChatViewModel(ref.read(aiChatRepositoryProvider));
 });

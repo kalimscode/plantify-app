@@ -15,16 +15,12 @@ class LoginAccountScreen extends ConsumerStatefulWidget {
   const LoginAccountScreen({super.key});
 
   @override
-  ConsumerState<LoginAccountScreen> createState() =>
-      _LoginAccountScreenState();
+  ConsumerState<LoginAccountScreen> createState() => _LoginAccountScreenState();
 }
 
-class _LoginAccountScreenState
-    extends ConsumerState<LoginAccountScreen> {
-
+class _LoginAccountScreenState extends ConsumerState<LoginAccountScreen> {
   @override
   Widget build(BuildContext context) {
-
     final state = ref.watch(loginAccountViewModelProvider);
     final viewModel = ref.read(loginAccountViewModelProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -34,50 +30,45 @@ class _LoginAccountScreenState
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          padding:
-          EdgeInsets.symmetric(horizontal: 24.w, vertical: 30.h),
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 30.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Login Your\nAccount',
                 style: AppTypography.h4Bold.copyWith(
-                  color: isDark
-                      ? AppColors.fontWhite
-                      : AppColors.fontBlack,
+                  color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
                 ),
               ),
               SizedBox(height: 30.h),
 
-              /// Email
+              // Email
               AppInputField(
                 label: "Email",
                 hintText: "example@yourdomain.com",
                 leadingIconPath: "assets/SvgIcons/mail-02.svg",
                 keyboardType: TextInputType.emailAddress,
                 controller: TextEditingController(text: state.email)
-                  ..selection = TextSelection.collapsed(
-                    offset: state.email.length,
-                  ),
+                  ..selection =
+                  TextSelection.collapsed(offset: state.email.length),
                 onChanged: viewModel.updateEmail,
               ),
               SizedBox(height: 22.h),
 
-              /// Password
+              // Password
               AppInputField(
                 label: "Password",
                 hintText: "Typing your password",
                 leadingIconPath: "assets/SvgIcons/lock-01.svg",
                 isPassword: true,
                 controller: TextEditingController(text: state.password)
-                  ..selection = TextSelection.collapsed(
-                    offset: state.password.length,
-                  ),
+                  ..selection =
+                  TextSelection.collapsed(offset: state.password.length),
                 onChanged: viewModel.updatePassword,
               ),
               SizedBox(height: 22.h),
 
-              /// Remember Me
+              // Remember Me + Forgot Password
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -99,8 +90,8 @@ class _LoginAccountScreenState
                     ],
                   ),
                   GestureDetector(
-                    onTap: () =>
-                        Navigator.pushNamed(context, AppRouter.forgotPassword),
+                    onTap: () => Navigator.pushNamed(
+                        context, AppRouter.forgotPassword),
                     child: Text(
                       'Forgot Password',
                       style: AppTypography.bodySmallBold,
@@ -110,41 +101,43 @@ class _LoginAccountScreenState
               ),
               SizedBox(height: 22.h),
 
-              /// ✅ SIGN IN BUTTON (STATE-DRIVEN)
+              // Sign In button
               ActionButton(
                 text: state.isLoading ? "Signing In..." : "Sign In",
+                variant: ButtonVariant.primary,
                 onPressed: state.isFormValid && !state.isLoading
                     ? () async {
                   final success = await viewModel.login();
-
                   if (!mounted) return;
 
                   if (success) {
 
-    AppSnackBar.show(
-    context,
-    message: "Login successful",
-    type: SnackBarType.success,
-    );
+                    ref.invalidate(userProfileProvider);
+                    ref.invalidate(userAddressesProvider);
 
-    Future.delayed(const Duration(milliseconds: 600), () {
-    Navigator.pushReplacementNamed(
-    context,
-    AppRouter.mainWrapper,
-    );
-    });
+                    AppSnackBar.show(
+                      context,
+                      message: "Login successful",
+                      type: SnackBarType.success,
+                    );
 
+                    Future.delayed(
+                      const Duration(milliseconds: 600),
+                          () {
+                        if (!mounted) return;
+                        Navigator.pushReplacementNamed(
+                            context, AppRouter.mainWrapper);
+                      },
+                    );
                   } else if (state.errorMessage != null) {
                     AppSnackBar.show(
                       context,
                       message: state.errorMessage!,
                       type: SnackBarType.error,
-
                     );
                   }
                 }
                     : null,
-                variant: ButtonVariant.primary,
               ),
               SizedBox(height: 28.h),
 
@@ -157,10 +150,11 @@ class _LoginAccountScreenState
                 ),
               ),
               SizedBox(height: 22.h),
+
               const SocialLoginButtons(),
               SizedBox(height: 22.h),
 
-              /// Go to Sign Up
+              // Go to Sign Up
               Center(
                 child: GestureDetector(
                   onTap: () =>
@@ -169,7 +163,7 @@ class _LoginAccountScreenState
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: "Don’t have an account? ",
+                          text: "Don't have an account? ",
                           style: AppTypography.bodyMediumRegular.copyWith(
                             color: isDark
                                 ? AppColors.fontWhite
@@ -187,7 +181,9 @@ class _LoginAccountScreenState
                   ),
                 ),
               ),
-              SizedBox(height: 175.h + MediaQuery.of(context).padding.bottom),
+              SizedBox(
+                height: 175.h + MediaQuery.of(context).padding.bottom,
+              ),
             ],
           ),
         ),

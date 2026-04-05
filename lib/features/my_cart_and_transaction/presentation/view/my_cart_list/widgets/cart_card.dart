@@ -3,8 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/theme/app_typography.dart';
-import '../../../../domain/models/cart_model.dart';
-import 'delete_bottom_sheet.dart';
 
 class CartCard extends StatelessWidget {
   final String title;
@@ -12,7 +10,7 @@ class CartCard extends StatelessWidget {
   final String size;
   final int quantity;
   final String image;
-  final VoidCallback onDelete;
+  final VoidCallback? onDelete;
   final VoidCallback onIncrease;
   final VoidCallback onDecrease;
 
@@ -23,7 +21,7 @@ class CartCard extends StatelessWidget {
     required this.size,
     required this.quantity,
     required this.image,
-    required this.onDelete,
+    this.onDelete,
     required this.onIncrease,
     required this.onDecrease,
   });
@@ -151,35 +149,6 @@ color: isDark ? AppColors.fill01 : AppColors.fill04,
                   ],
                 ),
               ],
-            ),
-          ),
-
-          GestureDetector(
-            onTap: () async {
-              final result = await showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => RemoveFromCartSheet(
-                  item: CartModel(
-                    id: '',
-                    productId: '',
-                    title: title,
-                    image: image,
-                    price: price,
-                    size: size,
-                    quantity: quantity,
-                  ),
-                ),
-              );
-
-              if (result == true) {
-                onDelete();
-              }
-            },
-            child: SvgPicture.asset(
-              'assets/SvgIcons/trash-01.svg',
-              width: 24.w,
             ),
           ),
         ],

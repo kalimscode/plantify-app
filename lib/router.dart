@@ -24,7 +24,6 @@ import 'features/list_plant/presentation/availble_plant/view/availble_plant_scre
 import 'features/my_cart_and_transaction/presentation/view/checkout_blank_screen/view/mycart_checkout_blank_screen.dart';
 import 'features/my_cart_and_transaction/presentation/view/my_cart_list/view/my_cart_list_screen.dart';
 import 'features/my_cart_and_transaction/presentation/view/mycart_checkout_enterpayment/enter_payment_screen.dart';
-import 'features/my_cart_and_transaction/presentation/view/mycart_checkout_selectaddress_/checkout_select_address_screen.dart';
 import 'features/my_cart_and_transaction/presentation/view/mycart_checkoutz_select_shipping/checkout_select_shipping_screen.dart';
 import 'features/onboarding/onboarding/presentation/view/onboarding_screen.dart';
 import 'features/onboarding/splash/presentation/view/splash_screen.dart';
@@ -33,6 +32,7 @@ import 'features/order_and_e-eeceipt/presentation/detail_e_receipt/detail_e_rece
 import 'features/order_and_e-eeceipt/presentation/myorder_status/view/myorder_status_screen.dart';
 import 'features/profile_and_setting/add_new_payment/add_new_payment_screen.dart';
 import 'features/profile_and_setting/languages/setting_languages.dart';
+import 'features/profile_and_setting/profile_address/profileaddressscreen.dart';
 import 'features/profile_and_setting/setting_security/setting_security_screen.dart';
 import 'features/setup_profile_pages/add_new_address/presentation/view/add_new_address_screen.dart';
 import 'features/setup_profile_pages/pin/presentation/view/pin_screen.dart';
@@ -154,7 +154,6 @@ class AppRouter {
       case mainWrapper:
         return MaterialPageRoute(builder: (_) => const MainWrapper());
 
-    // ✅ NEW CHECKOUT SCREEN ROUTES
       case checkoutBlankFullScreen:
         return MaterialPageRoute(builder: (_) => const CheckoutBlankFullScreen());
 
@@ -168,7 +167,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const CheckoutPaymentScreen());
 
       case checkoutSelectAddress:
-        return MaterialPageRoute(builder: (_) => const CheckoutSelectAddressScreen());
+        return MaterialPageRoute(builder: (_) => const ProfileAddressScreen());
       case detailereceipt:
         final order = settings.arguments as OrderEntity;
 

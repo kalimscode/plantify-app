@@ -15,36 +15,51 @@ import '../../../../../router.dart';
 import '../viewmodel/setup_profile_state.dart';
 
 class SetupProfileScreen extends ConsumerStatefulWidget {
-  final bool isEditMode; // ← add this
+  final bool isEditMode;
+
   const SetupProfileScreen({super.key, this.isEditMode = false});
 
   @override
-  ConsumerState<SetupProfileScreen> createState() =>
-      _SetupProfileScreenState();
+  ConsumerState<SetupProfileScreen> createState() => _SetupProfileScreenState();
 }
 
-class _SetupProfileScreenState
-    extends ConsumerState<SetupProfileScreen> {
+class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _emailCtrl;
   late final TextEditingController _phoneCtrl;
   late final TextEditingController _genderCtrl;
 
   bool _navigated = false;
-  bool _controllersSynced = false;
 
   @override
   void initState() {
     super.initState();
-
     _nameCtrl = TextEditingController();
     _emailCtrl = TextEditingController();
     _phoneCtrl = TextEditingController();
     _genderCtrl = TextEditingController();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(setupProfileViewModelProvider.notifier).loadProfile();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(setupProfileViewModelProvider.notifier).loadProfile();
+      if (!mounted) return;
+      _syncControllers();
     });
+  }
+
+  void _syncControllers() {
+    final profile = ref.read(setupProfileViewModelProvider).profile;
+    if (profile.fullName.isEmpty) return;
+
+    _nameCtrl.text = profile.fullName;
+    _emailCtrl.text = profile.email;
+    _phoneCtrl.text = profile.phone;
+    _genderCtrl.text = profile.gender;
+
+    final n = ref.read(setupProfileViewModelProvider.notifier);
+    n.setFullName(profile.fullName);
+    n.setEmail(profile.email);
+    n.setPhone(profile.phone);
+    n.setGender(profile.gender);
   }
 
   @override
@@ -55,7 +70,13 @@ class _SetupProfileScreenState
     _genderCtrl.dispose();
     super.dispose();
   }
+
   Future<bool> _onBackPressed() async {
+    if (widget.isEditMode) {
+      Navigator.pop(context);
+      return false;
+    }
+
     await showDialog(
       context: context,
       builder: (_) => ConfirmationDialog(
@@ -64,12 +85,11 @@ class _SetupProfileScreenState
         confirmText: "Exit",
         cancelText: "Stay",
         onConfirm: () {
-          Navigator.pop(context); // close the dialog
-          SystemNavigator.pop();  // ← close the app
+          Navigator.pop(context);
+          SystemNavigator.pop();
         },
       ),
     );
-
     return false;
   }
 
@@ -83,58 +103,53 @@ class _SetupProfileScreenState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(setupProfileViewModelProvider);
-    final notifier =
-    ref.read(setupProfileViewModelProvider.notifier);
-
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final notifier = ref.read(setupProfileViewModelProvider.notifier);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     ref.listen<SetupProfileState>(
       setupProfileViewModelProvider,
           (previous, next) {
-        if (!_controllersSynced &&
-            next.profile.fullName.isNotEmpty) {
-          _controllersSynced = true;
-
-          _nameCtrl.text = next.profile.fullName;
-          _emailCtrl.text = next.profile.email;
-          _phoneCtrl.text = next.profile.phone;///////////////
-          _genderCtrl.text = next.profile.gender;
+        if (next.error != null && previous?.error != next.error) {
+          AppSnackBar.show(context, message: next.error!, type: SnackBarType.error);
+          Future.microtask(() => notifier.clearError());
         }
 
         if (previous?.isSuccess != next.isSuccess && next.isSuccess && !_navigated) {
-          AppSnackBar.show(context, message: "Profile saved successfully", type: SnackBarType.success);
           _navigated = true;
+
+          AppSnackBar.show(
+            context,
+            message: "Profile saved successfully",
+            type: SnackBarType.success,
+          );
+
+          ref.invalidate(userProfileProvider);
 
           if (widget.isEditMode) {
             Navigator.pop(context);
           } else {
-            Navigator.pushReplacementNamed(context, AppRouter.addNewAddress);
+            Navigator.pushReplacementNamed(context, AppRouter.mainWrapper);
           }
 
           notifier.resetSuccess();
         }
-        if (next.error != null && previous?.error != next.error) {
-          AppSnackBar.show(
-              context, message: next.error!, type: SnackBarType.error);
-          Future.microtask(() => notifier.clearError());
-        }});
+      },
+    );
+
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
-        backgroundColor:
-        isDark ? AppColors.dark500 : AppColors.white500,
+        backgroundColor: isDark ? AppColors.dark500 : AppColors.white500,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: 24.w,
-              vertical: 32.h,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
             child: Column(
               children: [
-                Navigation1(title: 'Fill Your Profile',
-            onBackPressed:  () => _onBackPressed(),
+                Navigation1(
+                  title: widget.isEditMode ? 'Edit Profile' : 'Fill Your Profile',
+                  onBackPressed: () => _onBackPressed(),
                 ),
+
                 SizedBox(height: 32.h),
 
                 GestureDetector(
@@ -193,7 +208,10 @@ class _SetupProfileScreenState
                   leadingIconPath: 'assets/SvgIcons/user-02.svg',
                   hintText: 'Type your name',
                   controller: _nameCtrl,
-                  onChanged: notifier.setFullName,
+                  onChanged: (v) {
+                    notifier.setFullName(v);
+                    setState(() {}); // revalidate form button
+                  },
                 ),
 
                 SizedBox(height: 24.h),
@@ -204,19 +222,24 @@ class _SetupProfileScreenState
                   hintText: 'example@yourdomain.com',
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,
-                  onChanged: notifier.setEmail,
+                  onChanged: (v) {
+                    notifier.setEmail(v);
+                    setState(() {});
+                  },
                 ),
 
                 SizedBox(height: 24.h),
 
                 AppInputField(
                   label: 'No Phone',
-                  leadingIconPath:
-                  'assets/SvgIcons/phone-call-01.svg',
+                  leadingIconPath: 'assets/SvgIcons/phone-call-01.svg',
                   hintText: 'Type your phone number',
                   controller: _phoneCtrl,
                   keyboardType: TextInputType.phone,
-                  onChanged: notifier.setPhone,
+                  onChanged: (v) {
+                    notifier.setPhone(v);
+                    setState(() {});
+                  },
                 ),
 
                 SizedBox(height: 24.h),
@@ -226,15 +249,16 @@ class _SetupProfileScreenState
                   leadingIconPath: 'assets/SvgIcons/user-02.svg',
                   hintText: 'Enter your gender',
                   controller: _genderCtrl,
-                  onChanged: notifier.setGender,
+                  onChanged: (v) {
+                    notifier.setGender(v);
+                    setState(() {});
+                  },
                 ),
 
                 SizedBox(height: 32.h),
 
                 ActionButton(
-                  text: state.isLoading
-                      ? 'Submitting...'
-                      : 'Submit',
+                  text: state.isLoading ? 'Submitting...' : 'Submit',
                   onPressed: state.isLoading || !_isFormValid
                       ? null
                       : notifier.submit,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plantify/core/theme/app_typography.dart';
 import '../../../features/home/presentation/model/product_ui_model.dart';
 import '../../theme/app_colors.dart';
@@ -7,11 +8,13 @@ import '../../theme/app_colors.dart';
 class ProductCard extends StatelessWidget {
   final ProductUiModel product;
   final VoidCallback onLikeToggle;
+  final VoidCallback? onAddToCart;
 
   const ProductCard({
     Key? key,
     required this.product,
     required this.onLikeToggle,
+    this.onAddToCart,
   }) : super(key: key);
 
   @override
@@ -32,27 +35,25 @@ class ProductCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🌿 Image + Background + Heart icon together
+          // 🌿 Image + Background + Heart icon + Cart icon
           Stack(
             children: [
-              // Background shape
               Container(
                 width: 176.w,
                 height: 215.h,
                 decoration: ShapeDecoration(
-color: isDark ? AppColors.fill01 : AppColors.fill04,
+                  color: isDark ? AppColors.fill01 : AppColors.fill04,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.r),
                   ),
                 ),
               ),
 
-              // Product image
               Container(
                 width: 176.w,
                 height: 215.h,
                 decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.r),
+                  borderRadius: BorderRadius.circular(16.r),
                   image: product.imagePath.startsWith('http')
                       ? DecorationImage(
                     image: NetworkImage(product.imagePath),
@@ -62,11 +63,9 @@ color: isDark ? AppColors.fill01 : AppColors.fill04,
                     image: AssetImage(product.imagePath),
                     fit: BoxFit.contain,
                   ),
-
-    ),
+                ),
               ),
 
-              // Heart icon (top-right)
               Positioned(
                 top: 4.h,
                 right: 6.w,
@@ -86,6 +85,40 @@ color: isDark ? AppColors.fill01 : AppColors.fill04,
                   onPressed: onLikeToggle,
                 ),
               ),
+
+              if (onAddToCart != null)
+                Positioned(
+                  bottom: 8.h,
+                  right: 8.w,
+                  child: GestureDetector(
+                    onTap: onAddToCart,
+                    child: Container(
+                      width: 32.w,
+                      height: 32.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.main500,
+                        borderRadius: BorderRadius.circular(8.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.main500.withOpacity(0.4),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assets/SvgIcons/shopping-cart-03.svg',
+                          width: 17.w,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
 
@@ -95,39 +128,31 @@ color: isDark ? AppColors.fill01 : AppColors.fill04,
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
               SizedBox(
                 width: 176.w,
                 child: Text(
                   product.title,
                   style: AppTypography.bodyLargeBold.copyWith(
                     color: isDark ? AppColors.fontWhite : Colors.black,
-
-                  )
+                  ),
                 ),
               ),
               SizedBox(height: 2.h),
-
-              // Category
               SizedBox(
                 width: 176.w,
                 child: Text(
                   product.category,
-                  style: AppTypography.bodyMediumMedium.copyWith(
-                    color: AppColors.fontGrey
-                  )
+                  style: AppTypography.bodyMediumMedium
+                      .copyWith(color: AppColors.fontGrey),
                 ),
               ),
               SizedBox(height: 2.h),
-
-              // Price
               SizedBox(
                 width: 176.w,
                 child: Text(
                   '\$${product.price.toStringAsFixed(2)}',
-                  style: AppTypography.h6Bold.copyWith(
-                    color: AppColors.main500
-                  )
+                  style:
+                  AppTypography.h6Bold.copyWith(color: AppColors.main500),
                 ),
               ),
             ],

@@ -28,9 +28,9 @@ class plant_filter_result_screen extends ConsumerStatefulWidget {
 class _AvailablePlantsScreenState
     extends ConsumerState<plant_filter_result_screen> {
   String selectedSort = "Popular";
+
   List sortPlants(List plants) {
     List sorted = List.from(plants);
-
     switch (selectedSort) {
       case "Price High":
         sorted.sort((a, b) => b.price.compareTo(a.price));
@@ -44,13 +44,14 @@ class _AvailablePlantsScreenState
       default:
         break;
     }
-
     return sorted;
   }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final productsState = ref.watch(homeViewModelProvider);
+
     return Scaffold(
       backgroundColor: isDark ? AppColors.dark500 : AppColors.white500,
       body: SafeArea(
@@ -85,7 +86,6 @@ class _AvailablePlantsScreenState
                         builder: (_) {
                           return Stack(
                             children: [
-                              /// 🖤 Background overlay
                               Opacity(
                                 opacity: 0.65,
                                 child: Container(
@@ -94,7 +94,6 @@ class _AvailablePlantsScreenState
                                   color: Colors.black,
                                 ),
                               ),
-
                               Align(
                                 alignment: Alignment.bottomCenter,
                                 child: SortByBottomSheet(
@@ -106,11 +105,8 @@ class _AvailablePlantsScreenState
                                     "Most Recent",
                                     "Price Low",
                                   ],
-                                  onOptionSelected: (option) {
-                                    setState(() {
-                                      selectedSort = option;
-                                    });
-                                  },
+                                  onOptionSelected: (option) =>
+                                      setState(() => selectedSort = option),
                                 ),
                               ),
                             ],
@@ -122,9 +118,8 @@ class _AvailablePlantsScreenState
                       children: [
                         Text(
                           "Sort",
-                          style: AppTypography.bodyMediumMedium.copyWith(
-                            color: AppColors.fontGrey,
-                          ),
+                          style: AppTypography.bodyMediumMedium
+                              .copyWith(color: AppColors.fontGrey),
                         ),
                         SizedBox(width: 8.w),
                         SvgPicture.asset(
@@ -146,59 +141,67 @@ class _AvailablePlantsScreenState
 
               SizedBox(height: 28.h),
 
-          Expanded(
-            child: productsState.when(
-              loading: () =>
-              const Center(child: CircularProgressIndicator()),
-              error: (e, _) =>
-              const Center(child: Text("Error")),
-    data: (allProducts) {
+              Expanded(
+                child: productsState.when(
+                  loading: () =>
+                  const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => const Center(child: Text("Error")),
+                  data: (allProducts) {
+                    if (widget.filteredPlants.isEmpty) {
+                      return const Center(child: Text("No plants found"));
+                    }
 
-    if (widget.filteredPlants.isEmpty) {
-    return const Center(
-    child: Text("No plants found"),
-    );
-    }
+                    final sortedPlants = sortPlants(widget.filteredPlants);
 
-    final sortedPlants = sortPlants(widget.filteredPlants);
+                    return GridView.builder(
+                      itemCount: sortedPlants.length,
+                      gridDelegate:
+                      SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 20.h,
+                        crossAxisSpacing: 16.w,
+                        childAspectRatio: 0.57,
+                      ),
+                      itemBuilder: (context, index) {
+                        final product = sortedPlants[index];
+                        final originalIndex = allProducts
+                            .indexWhere((p) => p.id == product.id);
 
-    return GridView.builder(
-    itemCount: sortedPlants.length,
-    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    mainAxisSpacing: 20.h,
-    crossAxisSpacing: 16.w,
-    childAspectRatio: 0.57,
-    ),
-    itemBuilder: (context, index) {
-    final product = sortedPlants[index];
-    final originalIndex =
-    allProducts.indexWhere((p) => p.id == product.id);
-
-    return GestureDetector(
-    onTap: () {
-    Navigator.pushNamed(
-    context,
-    AppRouter.plantDetail,
-    arguments: product,
-    );
-    },
-    child: ProductCard(
-    product: product,
-    onLikeToggle: () {
-    ref
-        .read(homeViewModelProvider.notifier)
-        .toggleLike(originalIndex);
-    },
-    ),
-    );
-    },
-    );
-    }
-
-            ),
-          ),
-              ],
+                        return GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRouter.plantDetail,
+                            arguments: product,
+                          ),
+                          child: ProductCard(
+                            product: product,
+                            onLikeToggle: () => ref
+                                .read(homeViewModelProvider.notifier)
+                                .toggleLike(originalIndex),
+                            // ✅ Add to cart from filter results grid
+                            onAddToCart: () async {
+                              await ref
+                                  .read(cartProvider.notifier)
+                                  .addToCart(product, 1);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        '${product.title} added to cart'),
+                                    duration: const Duration(seconds: 1),
+                                    backgroundColor: AppColors.main500,
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

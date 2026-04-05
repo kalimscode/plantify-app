@@ -20,7 +20,6 @@ Plantify is a modern, responsive Flutter app for plant enthusiasts. Built with *
 ## ⚠️ Current State
 
 - Some screens are currently **non-interactive** due to missing backend APIs.
-- Profile data is stored **locally on the device** since profile APIs were unavailable.
 - As there are **no products in the database yet**, a **hybrid logic** approach has been implemented for product, cart, and order operations. This allows the app to simulate these features locally so the flow continues to work properly.
 - When backend APIs provide real product data, the same operations will seamlessly work through the APIs while still supporting local functionality.
 
@@ -34,7 +33,7 @@ Plantify is a modern, responsive Flutter app for plant enthusiasts. Built with *
 - **Favorites & Bookmarks**: Save your favorite plants for easy access
 - **Responsive UI**: Works on all screen sizes using `flutter_screenutil`
 - **Reusable Widgets**: Modular, consistent UI components
-- **API Integration**: authentication,product,favourite, cart and order apis
+- **API Integration**: authentication,Profile,product,favourite,plant ai assistant,  cart and order apis
 - **Dark/Light Theme Support**
 - **Clean & Scalable Code**: MVVM + Clean Architecture
 - **State Management**: Riverpod for reactive and predictable state handling

@@ -14,7 +14,6 @@ import '../../../../../../router.dart';
 class CheckoutBlankFullScreen extends ConsumerWidget {
   const CheckoutBlankFullScreen({super.key});
 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -23,42 +22,37 @@ class CheckoutBlankFullScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.dark500 : AppColors.white500,
-
       body: Padding(
-        padding: EdgeInsets.fromLTRB(24.w, 52.h, 24.w, 0.h),
+        padding: EdgeInsets.fromLTRB(24.w, 52.h, 24.w, 0),
         child: Column(
           children: [
-           Navigation1(title: 'Check Out',
-           onBackPressed: () => Navigator.pop(context),
-
-           ),
-
+            Navigation1(
+              title: 'Check Out',
+              onBackPressed: () => Navigator.pop(context),
+            ),
 
             Expanded(
               child: ListView(
                 children: [
+                  // ── Address section ────────────────────────────────────────
                   Text(
                     'Address',
                     style: AppTypography.bodyMediumBold.copyWith(
                       color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
                     ),
                   ),
-
                   SizedBox(height: 16.h),
 
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, AppRouter.checkoutSelectAddress);
-                      },
-
+                    onTap: () async {
+                      await Navigator.pushNamed(
+                          context, AppRouter.checkoutSelectAddress);
+                    },
                     child: Container(
                       padding: EdgeInsets.all(16.w),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: AppColors.fontGrey,
-                          width: 0.01
-                        )
+                        border: Border.all(color: AppColors.fontGrey, width: 0.01),
                       ),
                       child: Row(
                         children: [
@@ -66,14 +60,16 @@ class CheckoutBlankFullScreen extends ConsumerWidget {
                             width: 40.w,
                             height: 40.w,
                             decoration: BoxDecoration(
-              color: isDark? AppColors.fill01: AppColors.fill04,
+                              color: isDark ? AppColors.fill01 : AppColors.fill04,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Center(
                               child: SvgPicture.asset(
                                 'assets/SvgIcons/marker-pin-01.svg',
                                 width: 20.w,
-                                color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
+                                color: isDark
+                                    ? AppColors.fontWhite
+                                    : AppColors.fontBlack,
                               ),
                             ),
                           ),
@@ -83,14 +79,17 @@ class CheckoutBlankFullScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  selectedAddress?.nameAddress ?? "Select Address",
+                                  selectedAddress?.nameAddress ?? 'Select Address',
                                   style: AppTypography.bodyMediumBold.copyWith(
-                                    color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
-                                  )
+                                    color: isDark
+                                        ? AppColors.fontWhite
+                                        : AppColors.fontBlack,
+                                  ),
                                 ),
                                 SizedBox(height: 4.h),
                                 Text(
-                                  selectedAddress?.address ?? "No address selected",
+                                  selectedAddress?.address ??
+                                      'Tap to choose an address',
                                   style: AppTypography.bodySmallRegular.copyWith(
                                     color: AppColors.fontGrey,
                                   ),
@@ -98,7 +97,7 @@ class CheckoutBlankFullScreen extends ConsumerWidget {
                               ],
                             ),
                           ),
-                         CustomRadioButton(isActive: true)
+                          CustomRadioButton(isActive: selectedAddress != null),
                         ],
                       ),
                     ),
@@ -106,6 +105,7 @@ class CheckoutBlankFullScreen extends ConsumerWidget {
 
                   SizedBox(height: 24.h),
 
+                  // ── Cart items ─────────────────────────────────────────────
                   ...cart.items.map((item) => Padding(
                     padding: EdgeInsets.only(bottom: 16.h),
                     child: CheckoutItemWidget(
@@ -116,78 +116,83 @@ class CheckoutBlankFullScreen extends ConsumerWidget {
                       quantity: item.quantity,
                       isDark: isDark,
                     ),
-                  )).toList(),
+                  )),
 
                   SizedBox(height: 32.h),
 
+                  // ── Shipping ───────────────────────────────────────────────
                   Text(
                     'Chose Shipping',
                     style: AppTypography.bodyMediumBold.copyWith(
-                      color: isDark? AppColors.fontWhite : AppColors.fontBlack,
-                    )
+                      color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
+                    ),
                   ),
                   SizedBox(height: 12.h),
                   GestureDetector(
-                          onTap: () async {
-
-                          final price = await Navigator.pushNamed(
-                          context,
-                          AppRouter.checkoutSelectShipping,
-                          );
-
-                          if (price != null) {
-                          ref.read(cartProvider.notifier).setShipping(price as double);
-                          }
-
-
+                    onTap: () async {
+                      final price = await Navigator.pushNamed(
+                        context,
+                        AppRouter.checkoutSelectShipping,
+                      );
+                      if (price != null) {
+                        ref
+                            .read(cartProvider.notifier)
+                            .setShipping(price as double);
+                      }
                     },
                     child: Container(
                       padding: EdgeInsets.all(16.w),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.fontGrey,
-                            width: 0.01),
+                        border:
+                        Border.all(color: AppColors.fontGrey, width: 0.01),
                       ),
                       child: Row(
                         children: [
                           SvgPicture.asset(
                             'assets/SvgIcons/truck-01.svg',
                             width: 20.w,
-                            color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
+                            color: isDark
+                                ? AppColors.fontWhite
+                                : AppColors.fontBlack,
                           ),
                           SizedBox(width: 12.w),
-
                           Expanded(
                             child: Text(
                               'Chose Shipping Type',
                               style: AppTypography.bodyMediumRegular.copyWith(
-                                color: AppColors.fontGrey
-                              )
+                                color: AppColors.fontGrey,
+                              ),
                             ),
                           ),
-                           Icon(Icons.arrow_forward_ios, size: 16,color: isDark ? AppColors.fontWhite : AppColors.fontBlack,),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: isDark
+                                ? AppColors.fontWhite
+                                : AppColors.fontBlack,
+                          ),
                         ],
                       ),
                     ),
                   ),
 
-
                   SizedBox(height: 24.h),
 
+                  // ── Promo ──────────────────────────────────────────────────
                   Text(
                     'Promo Code',
                     style: AppTypography.bodyMediumBold.copyWith(
                       color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
-                    )
+                    ),
                   ),
                   SizedBox(height: 12.h),
                   Container(
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.fontGrey,
-                      width: 0.01,
-                      ),
+                      border:
+                      Border.all(color: AppColors.fontGrey, width: 0.01),
                     ),
                     child: Row(
                       children: [
@@ -209,40 +214,59 @@ class CheckoutBlankFullScreen extends ConsumerWidget {
 
                   SizedBox(height: 24.h),
 
+                  // ── Totals ─────────────────────────────────────────────────
                   Container(
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.fontGrey,
-                      width: 0.01,
-                      ),
+                      border:
+                      Border.all(color: AppColors.fontGrey, width: 0.01),
                     ),
                     child: Column(
                       children: [
-                        _amountRow("Subtotal", "\$${cart.subtotal.toStringAsFixed(2)}",isDark),
-                  SizedBox(height: 8.h),
-                  _amountRow("Shipping", "\$${cart.shipping.toStringAsFixed(2)}",isDark),
-                  SizedBox(height: 8.h),
-                  _amountRow("Total", "\$${cart.total.toStringAsFixed(2)}",isDark),
+                        _amountRow(
+                            "Subtotal",
+                            "\$${cart.subtotal.toStringAsFixed(2)}",
+                            isDark),
+                        SizedBox(height: 8.h),
+                        _amountRow(
+                            "Shipping",
+                            "\$${cart.shipping.toStringAsFixed(2)}",
+                            isDark),
+                        SizedBox(height: 8.h),
+                        _amountRow(
+                            "Total",
+                            "\$${cart.total.toStringAsFixed(2)}",
+                            isDark),
                       ],
                     ),
                   ),
 
-                SizedBox(height: 38.h),
-                  ActionButton(text: 'Continue',
+                  SizedBox(height: 38.h),
+
+                  ActionButton(
+                    text: 'Continue',
                     variant: ButtonVariant.primary,
                     size: ButtonSize.full,
-                    onPressed: (){
+                    onPressed: () {
+                      if (selectedAddress == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Please select an address first')),
+                        );
+                        return;
+                      }
                       Navigator.pushNamed(context, AppRouter.checkoutPayment);
                     },
-                  ),       ],
+                  ),
+
+                  SizedBox(height: 24.h),
+                ],
               ),
             ),
-
           ],
         ),
       ),
-      
     );
   }
 
@@ -250,9 +274,12 @@ class CheckoutBlankFullScreen extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: AppTypography.bodyMediumRegular.copyWith(
-          color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
-        )),
+        Text(
+          title,
+          style: AppTypography.bodyMediumRegular.copyWith(
+            color: isDark ? AppColors.fontWhite : AppColors.fontBlack,
+          ),
+        ),
         Text(
           value,
           style: AppTypography.bodyMediumBold.copyWith(

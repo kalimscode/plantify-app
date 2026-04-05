@@ -10,7 +10,6 @@ import '../../../../../core/di/providers.dart';
 import '../../../../../core/shared_widgets/form_fields/app_input_field/app_input_field.dart';
 import '../../../../../router.dart';
 
-
 class AvailablePlantsScreen extends ConsumerStatefulWidget {
   const AvailablePlantsScreen({Key? key}) : super(key: key);
 
@@ -21,7 +20,6 @@ class AvailablePlantsScreen extends ConsumerStatefulWidget {
 
 class _AvailablePlantsScreenState
     extends ConsumerState<AvailablePlantsScreen> {
-
   String searchText = "";
   String selectedCategory = "";
   RangeValues filterPrice = const RangeValues(0, 1000);
@@ -29,7 +27,6 @@ class _AvailablePlantsScreenState
 
   List sortProducts(List products) {
     List sorted = List.from(products);
-
     switch (selectedSort) {
       case 1:
         sorted.sort((a, b) => b.price.compareTo(a.price));
@@ -43,7 +40,6 @@ class _AvailablePlantsScreenState
       default:
         break;
     }
-
     return sorted;
   }
 
@@ -77,28 +73,28 @@ class _AvailablePlantsScreenState
                   label: '',
                   hintText: 'Search plants...',
                   leadingIconPath: 'assets/SvgIcons/search-sm.svg',
-                  trailingIconPath: 'assets/SvgIcons/filter-lines.svg',onTrailingIconTap: () {
-                  final products = ref.read(homeViewModelProvider).value ?? [];
-
-                  PlantFilterFullSheet.show(
-                    context,
-                    products: products,
-                    viewModel: viewModel,
-                    initialCategory: selectedCategory,
-                    initialRange: filterPrice,
-                    initialSortIndex: selectedSort,
-                    onApply: (category, priceRange, sortIndex) {
-                      setState(() {
-                        selectedCategory = category == "All" ? "" : category;
-                        filterPrice = priceRange;
-                        selectedSort = sortIndex;
-                      });
-                    },
-                  );
-                },
-                  onChanged: (value) {
-                    setState(() => searchText = value);
+                  trailingIconPath: 'assets/SvgIcons/filter-lines.svg',
+                  onTrailingIconTap: () {
+                    final products =
+                        ref.read(homeViewModelProvider).value ?? [];
+                    PlantFilterFullSheet.show(
+                      context,
+                      products: products,
+                      viewModel: viewModel,
+                      initialCategory: selectedCategory,
+                      initialRange: filterPrice,
+                      initialSortIndex: selectedSort,
+                      onApply: (category, priceRange, sortIndex) {
+                        setState(() {
+                          selectedCategory =
+                          category == "All" ? "" : category;
+                          filterPrice = priceRange;
+                          selectedSort = sortIndex;
+                        });
+                      },
+                    );
                   },
+                  onChanged: (value) => setState(() => searchText = value),
                 ),
               ),
 
@@ -113,10 +109,9 @@ class _AvailablePlantsScreenState
                   "Orchid",
                 ],
                 selectedCategory: "All",
-                onCategorySelected: (id) {
-                  ref.read(homeViewModelProvider.notifier)
-                      .loadProductsByCategory(id);
-                },
+                onCategorySelected: (id) => ref
+                    .read(homeViewModelProvider.notifier)
+                    .loadProductsByCategory(id),
               ),
 
               SizedBox(height: 20.h),
@@ -129,24 +124,17 @@ class _AvailablePlantsScreenState
                   error: (e, _) =>
                   const Center(child: Text("Failed to load plants")),
                   data: (products) {
-
                     final filteredProducts = products.where((plant) {
-
-                      final matchesSearch =
-                          searchText.isEmpty ||
-                              plant.title
-                                  .toLowerCase()
-                                  .contains(searchText.toLowerCase());
-
-                      final matchesPrice =
-                          plant.price >= filterPrice.start &&
-                              plant.price <= filterPrice.end;
-
+                      final matchesSearch = searchText.isEmpty ||
+                          plant.title
+                              .toLowerCase()
+                              .contains(searchText.toLowerCase());
+                      final matchesPrice = plant.price >= filterPrice.start &&
+                          plant.price <= filterPrice.end;
                       return matchesSearch && matchesPrice;
-
                     }).toList();
-                    final sortedProducts =
-                    sortProducts(filteredProducts);
+
+                    final sortedProducts = sortProducts(filteredProducts);
 
                     return GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
@@ -160,23 +148,36 @@ class _AvailablePlantsScreenState
                         childAspectRatio: 0.57,
                       ),
                       itemBuilder: (context, index) {
-
                         final plant = sortedProducts[index];
                         final originalIndex =
-                        products.indexWhere(
-                                (p) => p.id == plant.id);
+                        products.indexWhere((p) => p.id == plant.id);
 
                         return GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRouter.plantDetail,
-                              arguments: plant,
-                            );                          },
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRouter.plantDetail,
+                            arguments: plant,
+                          ),
                           child: ProductCard(
                             product: plant,
                             onLikeToggle: () =>
                                 viewModel.toggleLike(originalIndex),
+                            // ✅ Add to cart from available plants grid
+                            onAddToCart: () async {
+                              await ref
+                                  .read(cartProvider.notifier)
+                                  .addToCart(plant, 1);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                    Text('${plant.title} added to cart'),
+                                    duration: const Duration(seconds: 1),
+                                    backgroundColor: AppColors.main500,
+                                  ),
+                                );
+                              }
+                            },
                           ),
                         );
                       },
